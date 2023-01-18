@@ -1,0 +1,63 @@
+FROM php:7.2-apache
+
+RUN apt-get update \
+    && apt-get install -y \
+        git \
+        vim \
+        curl \
+        zip \
+        sqlite3 \
+        libpng-dev \
+        libssl-dev libcurl4-openssl-dev pkg-config \
+        libldb-dev libldap2-dev \
+        libpq-dev \
+        libedit-dev \
+        libxml2-dev \
+        libc-client-dev \
+        libkrb5-dev \
+        libjpeg-dev \
+        libfreetype6-dev \
+        libwebp-dev \ 
+        libxpm-dev 
+
+RUN ln -s /usr/lib/x86_64-linux-gnu/libldap.so /usr/lib/libldap.so \
+    && ln -s /usr/lib/x86_64-linux-gnu/liblber.so /usr/lib/liblber.so 
+
+RUN docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql \
+    && docker-php-ext-configure imap --with-kerberos --with-imap-ssl \
+    && docker-php-ext-install imap
+
+RUN docker-php-ext-configure gd \
+        --with-gd \
+        --with-png-dir \
+        --with-zlib-dir \
+        --with-webp-dir \
+        --with-xpm-dir \
+        --with-freetype-dir=/usr/include \
+        --with-jpeg-dir=/usr/include \
+        --enable-gd-native-ttf
+
+RUN docker-php-ext-install -j$(nproc) \ 
+    bcmath \
+    calendar \
+    curl \
+    gd \
+    json \
+    ldap \
+    pdo \
+    pdo_pgsql \
+    opcache \
+    readline \
+    pgsql \
+    xml \
+    xmlrpc \
+    mbstring \
+    zip \
+    dba \
+    sockets
+
+RUN pecl install -o redis \ 
+    && docker-php-ext-enable redis opcache 
+
+RUN a2enmod rewrite unique_id \
+    && a2dissite 000-default

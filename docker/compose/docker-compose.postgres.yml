@@ -1,0 +1,31 @@
+version: '3.2'
+services:
+  imperium:
+    image: edoceo/imperium:latest
+    environment:
+      - APP_ROOT=/opt/imperium
+      - APACHE_SERVER_NAME=localhost
+      - APACHE_DOCUMENT_ROOT="/opt/imperium/webroot"
+      - APP_SITE=http://localhost:8000
+    volumes:
+      - ./bin:/opt/imperium/bin
+      - ./block:/opt/imperium/block
+      - ./controller:/opt/imperium/controller
+      - ./etc:/opt/imperium/etc
+      - ./lib:/opt/imperium/lib
+      - ./sbin:/opt/imperium/sbin
+      - ./theme:/opt/imperium/theme
+      - ./view:/opt/imperium/view
+      - ./webroot:/opt/imperium/webroot
+      - ./boot.php:/opt/imperium/boot.php
+      - ./composer.json:/opt/imperium/composer.json
+    ports:
+      - "8888:80"
+    command: "apache2-foreground"
+
+  postgres:
+    image: openthc/postgres-base:latest
+    environment:
+      - POSTGRES_PASSWORD=openthc
+      - POSTGRES_USER=openthc
+      - POSTGRES_DB=openthc
